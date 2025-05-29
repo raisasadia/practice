@@ -18,21 +18,21 @@ class SiteController extends Controller
     public function behaviors()
     {
         return [
-            'access' => [
+            'access' => [   //Purpose: Restricts the logout action so only logged-in users can access it.
                 'class' => AccessControl::class,
                 'only' => ['logout'],
                 'rules' => [
                     [
                         'actions' => ['logout'],
                         'allow' => true,
-                        'roles' => ['@'],
+                        'roles' => ['@'],   // @ = logged-in users
                     ],
                 ],
             ],
-            'verbs' => [
+            'verbs' => [    //Purpose: Prevents people from logging out via URL like GET /site/logout.
                 'class' => VerbFilter::class,
                 'actions' => [
-                    'logout' => ['post'],
+                    'logout' => ['post'],   // only allow POST requests
                 ],
             ],
         ];
@@ -41,13 +41,13 @@ class SiteController extends Controller
     /**
      * {@inheritdoc}
      */
-    public function actions()
+    public function actions()   //declare external action classes without writing their logic directly inside the controller.
     {
         return [
-            'error' => [
+            'error' => [    //Purpose: Displays the error page.
                 'class' => 'yii\web\ErrorAction',
             ],
-            'captcha' => [
+            'captcha' => [  //Purpose: Displays the captcha page.
                 'class' => 'yii\captcha\CaptchaAction',
                 'fixedVerifyCode' => YII_ENV_TEST ? 'testme' : null,
             ],
@@ -121,7 +121,7 @@ class SiteController extends Controller
      *
      * @return string
      */
-    public function actionAbout()
+    public function actionAboutMe()
     {
         return $this->render('about');
     }
