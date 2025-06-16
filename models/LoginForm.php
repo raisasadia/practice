@@ -21,6 +21,16 @@ class LoginForm extends Model
             [['name', 'password'], 'required'],
         ];
     }
+    
+    public function attributeLabels()
+    {
+        return [
+            'name' => 'Your Username',
+            'password' => 'Your Password',
+            'rememberMe' => 'Keep me logged in',
+
+        ];
+    }
 
 
     public function login()
