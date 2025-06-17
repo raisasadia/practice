@@ -13,6 +13,19 @@ $config = [
     ],
     'name' => 'Practice yii!',
     'components' => [
+        'authClientCollection' => [
+            'class' => 'yii\authclient\Collection',
+            'clients' => [
+                'keycloak' => [
+                    'class' => 'yii\authclient\clients\OpenIdConnect',
+                    'clientId' => 'fortifymis-frontend',
+                    'clientSecret' => '',
+                    'returnUrl' => 'http://localhost:8080/site/auth?authclient=keycloak',
+                    'issuerUrl' => 'https://dfqt.moind.gov.bd/iam/realms/fortifymis',
+                    'title' => 'Login with Keycloak',
+                ],
+            ],
+        ],
         'request' => [
             // !!! insert a secret key in the following (if it is empty) - this is required by cookie validation
             'cookieValidationKey' => '1zdrerzIFRj6GQJKu9U3AQvTta2BWTAV',

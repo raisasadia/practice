@@ -10,6 +10,9 @@ use yii\filters\VerbFilter;
 use app\models\LoginForm;
 use app\models\ContactForm;
 use app\models\SignupForm;
+use yii\authclient\AuthAction;
+use app\models\User;
+use yii\authclient\ClientInterface;
 
 class SiteController extends Controller
 {
@@ -45,6 +48,10 @@ class SiteController extends Controller
     public function actions()   //declare external action classes without writing their logic directly inside the controller.
     {
         return [
+            'auth' => [
+                'class' => 'yii\authclient\AuthAction',
+                'successCallback' => [$this, 'onAuthSuccess'],
+            ],
             'error' => [    //Purpose: Displays the error page.
                 'class' => 'yii\web\ErrorAction',
             ],
@@ -94,6 +101,26 @@ class SiteController extends Controller
         return $this->render('login', [
             'model' => $model,
         ]);
+    }
+
+    public function onAuthSuccess($client)
+    {
+        $attributes = $client->getUserAttributes();
+        $id = $attributes['sub'];
+
+        $user = User::find()->where(['keycloak_id' => $id])->one();
+
+        if (!$user) {
+            $user = new User();
+            $user->keycloak_id = $id;
+            $user->name = $attributes['preferred_username'] ?? 'Unknown';
+            $user->email = $attributes['email'] ?? null;
+            $user->access_token = $client->getAccessToken()->getToken();
+            $user->auth_key = Yii::$app->security->generateRandomString();
+            $user->save();
+        }
+
+        Yii::$app->user->login($user, 3600 * 24 * 30);
     }
 
     public function actionLogout()

@@ -30,10 +30,10 @@ class User extends ActiveRecord implements IdentityInterface
         return [
             [['name', 'password'], 'required'],
             [['email'], 'email'],
+            [['auth_key', 'access_token', 'keycloak_id'], 'string'],
         ];
     }
 
-    // IdentityInterface methods below
 
     public static function findIdentity($id)
     {
@@ -42,7 +42,7 @@ class User extends ActiveRecord implements IdentityInterface
 
     public static function findIdentityByAccessToken($token, $type = null)
     {
-        return null; // Implement if needed
+        return static::findOne(['access_token' => $token]);
     }
 
     public function getId()
@@ -52,15 +52,30 @@ class User extends ActiveRecord implements IdentityInterface
 
     public function getAuthKey()
     {
-        return null; // Implement if needed
+        return $this->auth_key;
     }
 
     public function validateAuthKey($authKey)
     {
-        return false; // Implement if needed
+        return $this->auth_key === $authKey;
     }
+
     public function getUsername()
     {
         return $this->name;
+    }
+
+    public static function findByKeycloakId($keycloakId)
+    {
+        return static::findOne(['keycloak_id' => $keycloakId]);
+    }
+
+    public function beforeSave($insert)
+    {
+        if ($insert && empty($this->auth_key)) {
+            $this->auth_key = \Yii::$app->security->generateRandomString();
+        }
+
+        return parent::beforeSave($insert);
     }
 }

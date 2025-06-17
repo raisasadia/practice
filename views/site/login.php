@@ -2,6 +2,7 @@
 
 use yii\bootstrap5\ActiveForm;
 use yii\bootstrap5\Html;
+use yii\authclient\widgets\AuthChoice;
 
 $this->title = 'Login';
 $this->params['breadcrumbs'][] = $this->title;
@@ -42,7 +43,9 @@ $this->params['breadcrumbs'][] = $this->title;
                     </div>
                 </div>
             </div>
-
+            <a class="btn btn-primary" href="<?= \yii\helpers\Url::to(['site/auth', 'authclient' => 'keycloak']) ?>">
+                Login with Keycloak
+            </a>
             <?php ActiveForm::end(); ?>
 
             <div style="color:#999;">
