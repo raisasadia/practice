@@ -5,13 +5,14 @@ return [
     'senderEmail' => 'noreply@example.com',
     'senderName' => 'Example.com mailer',
     'keycloak' => [
-        'realm' => 'fortifymis',
-        'client_id' => 'fortify-cli',
-        'base_url' => 'https://dfqt.moind.gov.bd/iam/realms/fortifymis',
-        'token_url' => 'https://dfqt.moind.gov.bd/iam/realms/fortifymis/protocol/openid-connect/token',
-        'auth_url' => 'https://dfqt.moind.gov.bd/iam/realms/fortifymis/protocol/openid-connect/auth',
-        'userinfo_url' => 'https://dfqt.moind.gov.bd/iam/realms/fortifymis/protocol/openid-connect/userinfo',
-        'logout_url' => 'https://dfqt.moind.gov.bd/iam/realms/fortifymis/protocol/openid-connect/logout',
+        'realm' => 'myrealm',
+        'client_id' => 'yii-client',
+        'base_url' => 'http://localhost:8081/realms/myrealm',
+        'token_url' => 'http://localhost:8081/realms/myrealm/protocol/openid-connect/token',
+        'auth_url' => 'http://localhost:8081/realms/myrealm/protocol/openid-connect/auth',
+        'userinfo_url' => 'http://localhost:8081/realms/myrealm/protocol/openid-connect/userinfo',
+        'logout_url' => 'http://localhost:8081/realms/myrealm/protocol/openid-connect/logout',
+        'redirect_uri' => 'http://localhost:8080/site/callback',
     ],
 
 ];
