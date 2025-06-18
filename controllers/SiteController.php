@@ -10,6 +10,7 @@ use yii\filters\VerbFilter;
 use app\models\LoginForm;
 use app\models\ContactForm;
 use app\models\SignupForm;
+use app\components\Keycloak\Keycloak;
 
 class SiteController extends Controller
 {
@@ -65,6 +66,19 @@ class SiteController extends Controller
         return $this->render('index');
     }
 
+    public function actionCallback()
+    {
+        $code = Yii::$app->request->get('code');
+        $redirectUri = Yii::$app->params['keycloak']['redirect_uri'];
+
+        $token = Keycloak::auth()->getToken($code, $redirectUri);
+        $user = Keycloak::user()->getUserInfo($token['access_token']);
+
+        Yii::$app->session->set('user', $user);
+
+        return $this->redirect(['site/about-me']);
+    }
+
     public function actionSignup()
     {
         $model = new SignupForm();
@@ -82,26 +96,34 @@ class SiteController extends Controller
     
     public function actionLogin()
     {
-        if (!Yii::$app->user->isGuest) {
-            return $this->goHome();
-        }
-
-        $model = new LoginForm();
-        if ($model->load(Yii::$app->request->post()) && $model->login()) {
-            return $this->goBack();
-        }
-
-        return $this->render('login', [
-            'model' => $model,
+        $clientId = Yii::$app->params['keycloak']['client_id'];
+        $redirectUri = Yii::$app->params['keycloak']['redirect_uri'];
+        $authUrl = Yii::$app->params['keycloak']['auth_url'];
+        
+        $query = http_build_query([
+            'client_id' => $clientId,
+            'response_type' => 'code',
+            'redirect_uri' => $redirectUri,
+            'scope' => 'openid email profile',
         ]);
+
+        return $this->redirect($authUrl . '?' . $query);
     }
 
-    public function actionLogout()
+
+    public function actionKcLogout()
     {
-        Yii::$app->user->logout();
+        Yii::$app->session->remove('user');
+        $logoutUrl = Yii::$app->params['keycloak']['logout_url'];
+        $redirect = 'http://localhost:8080';
 
-        return $this->goHome();
+        $url = $logoutUrl . '?' . http_build_query([
+            'post_logout_redirect_uri' => $redirect,
+        ]);
+
+        return $this->redirect($url);
     }
+
 
     /**
      * Displays contact page.
