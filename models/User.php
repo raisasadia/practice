@@ -63,4 +63,20 @@ class User extends ActiveRecord implements IdentityInterface
     {
         return $this->name;
     }
+
+    public static function findByEmail($email)
+    {
+        return static::findOne(['email' => $email]);
+    }
+
+    public static function createFromKeycloak($keycloakUser)
+    {
+        $user = new self();
+        $user->name = $keycloakUser['name'] ?? $keycloakUser['preferred_username'];
+        $user->email = $keycloakUser['email'];
+        $user->keycloak_id = $keycloakUser['sub'];
+        $user->email = $keycloakUser['email'];
+        $user->save(false);
+        return $user;
+    }
 }

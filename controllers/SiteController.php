@@ -7,7 +7,7 @@ use yii\filters\AccessControl;
 use yii\web\Controller;
 use yii\web\Response;
 use yii\filters\VerbFilter;
-use app\models\LoginForm;
+use app\models\User;
 use app\models\ContactForm;
 use app\models\SignupForm;
 use yii2keycloak\Keycloak\Keycloak;
@@ -72,9 +72,16 @@ class SiteController extends Controller
         $redirectUri = Yii::$app->params['keycloak']['redirect_uri'];
 
         $token = Keycloak::auth()->getToken($code, $redirectUri);
-        $user = Keycloak::user()->getUserInfo($token['access_token']);
+        $userInfo = Keycloak::user()->getUserInfo($token['access_token']);
 
-        Yii::$app->session->set('user', $user);
+        $user = User::findByEmail($userInfo['email']);
+        
+        if (!$user) {
+            $user = User::createFromKeycloak($userInfo);
+        }
+
+        Yii::$app->user->login($user);
+
         Yii::$app->session->set('id_token', $token['id_token']);
 
         return $this->redirect(['site/about-me']);
