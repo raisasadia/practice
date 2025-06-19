@@ -12,4 +12,9 @@ class Keycloak
     {
         return new UserService();
     }
+    
+    public static function admin()
+    {
+        return new KeycloakAdminService();
+    }
 }

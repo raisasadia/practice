@@ -9,14 +9,10 @@ use yii\web\Response;
 use yii\filters\VerbFilter;
 use app\models\User;
 use app\models\ContactForm;
-use app\models\SignupForm;
 use yii2keycloak\Keycloak\Keycloak;
 
 class SiteController extends Controller
 {
-    /**
-     * {@inheritdoc}
-     */
     public function behaviors()
     {
         return [
@@ -40,9 +36,6 @@ class SiteController extends Controller
         ];
     }
 
-    /**
-     * {@inheritdoc}
-     */
     public function actions()   //declare external action classes without writing their logic directly inside the controller.
     {
         return [
@@ -56,11 +49,6 @@ class SiteController extends Controller
         ];
     }
 
-    /**
-     * Displays homepage.
-     *
-     * @return string
-     */
     public function actionIndex()
     {
         return $this->render('index');
@@ -86,21 +74,6 @@ class SiteController extends Controller
 
         return $this->redirect(['site/about-me']);
     }
-
-    public function actionSignup()
-    {
-        $model = new SignupForm();
-
-        if ($model->load(Yii::$app->request->post()) && $model->signup()) {
-            Yii::$app->session->setFlash('success', 'Registration successful! You can now log in.');
-            return $this->redirect(['site/login']);
-        }
-
-        return $this->render('signup', [
-            'model' => $model,
-        ]);
-    }
-
     
     public function actionLogin()
     {
@@ -118,7 +91,6 @@ class SiteController extends Controller
         return $this->redirect($authUrl . '?' . $query);
     }
 
-
     public function actionKcLogout()
     {
         $idToken = Yii::$app->session->get('id_token');
@@ -135,13 +107,16 @@ class SiteController extends Controller
         return $this->redirect($url);
     }
 
+    public function actionUserList()
+    {
+        if (Yii::$app->user->isGuest) {
+            return $this->redirect(['site/login']); // or show 403
+        }
+        $users = Keycloak::admin()->getAllUsers();
 
+        return $this->render('user-list', ['users' => $users]);
+    }
 
-    /**
-     * Displays contact page.
-     *
-     * @return Response|string
-     */
     public function actionContact()
     {
         $model = new ContactForm();
@@ -155,11 +130,6 @@ class SiteController extends Controller
         ]);
     }
 
-    /**
-     * Displays about page.
-     *
-     * @return string
-     */
     public function actionAboutMe()
     {
         return $this->render('about');

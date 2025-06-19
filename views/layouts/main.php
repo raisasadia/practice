@@ -43,6 +43,7 @@ $this->registerLinkTag(['rel' => 'icon', 'type' => 'image/x-icon', 'href' => Yii
             ['label' => 'About', 'url' => ['/site/about-me']],
             ['label' => 'Contact', 'url' => ['/site/contact']],
             ['label' => 'Demo', 'url' => ['/demo/demonstrate']],
+            ['label' => 'User List', 'url' => ['/site/user-list']],
             Yii::$app->user->isGuest
                 ? ['label' => 'Login', 'url' => ['/site/login']]
                 : '<li class="nav-item">'

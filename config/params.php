@@ -7,7 +7,9 @@ return [
     'keycloak' => [
         'realm' => 'myrealm',
         'client_id' => 'yii-client',
-        'base_url' => 'http://localhost:8081/realms/myrealm',
+        'admin_client_id' => 'yii-admin',
+        'admin_client_secret' => 'YpRsR21WgnLVMgb3n5RBHLOHuw8MTXmo',
+        'base_url' => 'http://localhost:8081',
         'token_url' => 'http://localhost:8081/realms/myrealm/protocol/openid-connect/token',
         'auth_url' => 'http://localhost:8081/realms/myrealm/protocol/openid-connect/auth',
         'userinfo_url' => 'http://localhost:8081/realms/myrealm/protocol/openid-connect/userinfo',
