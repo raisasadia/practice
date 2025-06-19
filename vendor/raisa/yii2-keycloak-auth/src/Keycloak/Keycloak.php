@@ -1,5 +1,5 @@
 <?php
-namespace app\components\Keycloak;
+namespace yii2keycloak\Keycloak;
 
 class Keycloak
 {

@@ -49,4 +49,13 @@ return array (
       '@yii/symfonymailer' => $vendorDir . '/yiisoft/yii2-symfonymailer/src',
     ),
   ),
+  'raisa/yii2-keycloak-auth' => 
+  array (
+    'name' => 'raisa/yii2-keycloak-auth',
+    'version' => 'dev-main',
+    'alias' => 
+    array (
+      '@yii2keycloak/Keycloak' => $vendorDir . '/raisa/yii2-keycloak-auth/src/Keycloak',
+    ),
+  ),
 );

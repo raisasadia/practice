@@ -2664,6 +2664,42 @@
             "install-path": "../psy/psysh"
         },
         {
+            "name": "raisa/yii2-keycloak-auth",
+            "version": "dev-main",
+            "version_normalized": "dev-main",
+            "dist": {
+                "type": "path",
+                "url": "../yii2-keycloak-auth",
+                "reference": "b8b8822ea3602d54826eb893074b3a8d2cbf1208"
+            },
+            "require": {
+                "guzzlehttp/guzzle": "^7.0",
+                "php": ">=7.4",
+                "yiisoft/yii2": "^2.0"
+            },
+            "type": "yii2-extension",
+            "installation-source": "dist",
+            "autoload": {
+                "psr-4": {
+                    "yii2keycloak\\Keycloak\\": "src/Keycloak/"
+                }
+            },
+            "license": [
+                "MIT"
+            ],
+            "authors": [
+                {
+                    "name": "Umme Sadia Raisa",
+                    "email": "raisa.ummesadia@gmail.com"
+                }
+            ],
+            "description": "A simple Keycloak integration for Yii2",
+            "transport-options": {
+                "relative": true
+            },
+            "install-path": "../raisa/yii2-keycloak-auth"
+        },
+        {
             "name": "ralouphie/getallheaders",
             "version": "3.0.3",
             "version_normalized": "3.0.3.0",

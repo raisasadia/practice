@@ -13,6 +13,7 @@ return [
         'userinfo_url' => 'http://localhost:8081/realms/myrealm/protocol/openid-connect/userinfo',
         'logout_url' => 'http://localhost:8081/realms/myrealm/protocol/openid-connect/logout',
         'redirect_uri' => 'http://localhost:8080/site/callback',
+        'redirect_uri_after_logout' => 'http://localhost:8080',
     ],
 
 ];

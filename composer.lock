@@ -4,7 +4,7 @@
         "Read more about it at https://getcomposer.org/doc/01-basic-usage.md#installing-dependencies",
         "This file is @generated automatically"
     ],
-    "content-hash": "3b3d0f2661fc69b193e883805cc871ba",
+    "content-hash": "3279a9d8902de59afc826821e45950e2",
     "packages": [
         {
             "name": "bower-asset/bootstrap",
@@ -1002,6 +1002,39 @@
                 "source": "https://github.com/php-fig/log/tree/3.0.2"
             },
             "time": "2024-09-11T13:17:53+00:00"
+        },
+        {
+            "name": "raisa/yii2-keycloak-auth",
+            "version": "dev-main",
+            "dist": {
+                "type": "path",
+                "url": "../yii2-keycloak-auth",
+                "reference": "b8b8822ea3602d54826eb893074b3a8d2cbf1208"
+            },
+            "require": {
+                "guzzlehttp/guzzle": "^7.0",
+                "php": ">=7.4",
+                "yiisoft/yii2": "^2.0"
+            },
+            "type": "yii2-extension",
+            "autoload": {
+                "psr-4": {
+                    "yii2keycloak\\Keycloak\\": "src/Keycloak/"
+                }
+            },
+            "license": [
+                "MIT"
+            ],
+            "authors": [
+                {
+                    "name": "Umme Sadia Raisa",
+                    "email": "raisa.ummesadia@gmail.com"
+                }
+            ],
+            "description": "A simple Keycloak integration for Yii2",
+            "transport-options": {
+                "relative": true
+            }
         },
         {
             "name": "ralouphie/getallheaders",
@@ -5717,7 +5750,9 @@
     ],
     "aliases": [],
     "minimum-stability": "stable",
-    "stability-flags": [],
+    "stability-flags": {
+        "raisa/yii2-keycloak-auth": 20
+    },
     "prefer-stable": false,
     "prefer-lowest": false,
     "platform": {

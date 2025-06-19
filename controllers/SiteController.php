@@ -10,7 +10,7 @@ use yii\filters\VerbFilter;
 use app\models\LoginForm;
 use app\models\ContactForm;
 use app\models\SignupForm;
-use app\components\Keycloak\Keycloak;
+use yii2keycloak\Keycloak\Keycloak;
 
 class SiteController extends Controller
 {
@@ -75,6 +75,7 @@ class SiteController extends Controller
         $user = Keycloak::user()->getUserInfo($token['access_token']);
 
         Yii::$app->session->set('user', $user);
+        Yii::$app->session->set('id_token', $token['id_token']);
 
         return $this->redirect(['site/about-me']);
     }
@@ -113,16 +114,20 @@ class SiteController extends Controller
 
     public function actionKcLogout()
     {
-        Yii::$app->session->remove('user');
+        $idToken = Yii::$app->session->get('id_token');
+        Yii::$app->session->removeAll(); // Clear all session data
+
         $logoutUrl = Yii::$app->params['keycloak']['logout_url'];
-        $redirect = 'http://localhost:8080';
+        $redirectUri = Yii::$app->params['keycloak']['redirect_uri_after_logout'] ?? 'http://localhost:8080';
 
         $url = $logoutUrl . '?' . http_build_query([
-            'post_logout_redirect_uri' => $redirect,
+            'post_logout_redirect_uri' => $redirectUri,
+            'id_token_hint' => $idToken,
         ]);
 
         return $this->redirect($url);
     }
+
 
 
     /**
