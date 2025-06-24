@@ -134,4 +134,19 @@ class SiteController extends Controller
     {
         return $this->render('about');
     }
+
+    public function actionUserView($id)
+    {
+        if (Yii::$app->user->isGuest) {
+            return $this->redirect(['site/login']);
+        }
+        $admin = Keycloak::admin();
+        $user = Keycloak::admin()->getUserById($id);
+        $sessions = $admin->getUserSessions($id);
+        return $this->render('user-view', [
+            'user' => $user,
+            'sessions' => $sessions,
+        ]);
+    }
+
 }

@@ -14,7 +14,11 @@
         <?php foreach ($users as $index => $user): ?>
             <tr>
                 <td><?= $index + 1 ?></td>
-                <td><?= htmlspecialchars($user['username'] ?? 'N/A') ?></td>
+                <td>
+                    <a href="<?= \yii\helpers\Url::to(['site/user-view', 'id' => $user['id']]) ?>">
+                        <?= htmlspecialchars($user['username'] ?? 'N/A') ?>
+                    </a>
+                </td>
                 <td><?= htmlspecialchars($user['email'] ?? 'no email') ?></td>
                 <td><?= htmlspecialchars($user['firstName'] ?? '-') ?></td>
                 <td><?= htmlspecialchars($user['lastName'] ?? '-') ?></td>
