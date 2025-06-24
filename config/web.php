@@ -48,6 +48,8 @@ $config = [
             'showScriptName' => false,
             'rules' => [
                 '/home' => 'site/index',
+                'user-view/<id>' => 'site/user-view',
+                'logout-user/<sessionId>' => 'site/logout-user-session',
             ],
         ],
     ],

@@ -148,5 +148,15 @@ class SiteController extends Controller
             'sessions' => $sessions,
         ]);
     }
+    public function actionLogoutUserSession($sessionId)
+    {
+        if (Keycloak::admin()->deleteUserSession($sessionId)) {
+            Yii::$app->session->setFlash('success', 'Session forcibly logged out.');
+        } else {
+            Yii::$app->session->setFlash('error', 'Failed to logout session.');
+        }
+
+        return $this->goBack();
+    }
 
 }

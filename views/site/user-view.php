@@ -1,3 +1,6 @@
+<?php
+use yii\helpers\Html;
+?>
 <h1>User Details</h1>
 
 <table class="table table-bordered">
@@ -20,6 +23,7 @@
                 <th>Start Time</th>
                 <th>Last Access</th>
                 <th>Client</th>
+                <th>Action</th>
             </tr>
         </thead>
         <tbody>
@@ -27,9 +31,20 @@
                 <tr>
                     <td><?= htmlspecialchars($session['id']) ?></td>
                     <td><?= $session['ipAddress'] ?? '-' ?></td>
-                    <td><?= date('Y-m-d H:i:s', $session['start']) ?></td>
-                    <td><?= date('Y-m-d H:i:s', $session['lastAccess']) ?></td>
-                    <td><?= implode(', ', array_keys($session['clients'] ?? [])) ?></td>
+                    <td><?= date('d/m/Y H:i:s', $session['start'] / 1000) ?></td>
+                    <td><?= date('d/m/Y H:i:s', $session['lastAccess'] / 1000) ?></td>
+                    <td><?= implode(', ', $session['clients'] ?? []) ?></td>
+                    <td>
+                        <?= Html::beginForm(['logout-user-session', 'sessionId' => $session['id']], 'post', ['style' => 'display:inline']) ?>
+                            <?= Html::submitButton(
+                                'Force Logout',
+                                [
+                                    'class' => 'btn btn-danger btn-sm',
+                                    'data-confirm' => 'Are you sure you want to force logout this session?',
+                                ]
+                            ) ?>
+                        <?= Html::endForm() ?>
+                    </td>
                 </tr>
             <?php endforeach; ?>
         </tbody>
