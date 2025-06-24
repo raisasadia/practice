@@ -7,16 +7,12 @@ use yii\filters\AccessControl;
 use yii\web\Controller;
 use yii\web\Response;
 use yii\filters\VerbFilter;
-use app\models\LoginForm;
+use app\models\User;
 use app\models\ContactForm;
-use app\models\SignupForm;
-use app\components\Keycloak\Keycloak;
+use yii2keycloak\Keycloak\Keycloak;
 
 class SiteController extends Controller
 {
-    /**
-     * {@inheritdoc}
-     */
     public function behaviors()
     {
         return [
@@ -40,9 +36,6 @@ class SiteController extends Controller
         ];
     }
 
-    /**
-     * {@inheritdoc}
-     */
     public function actions()   //declare external action classes without writing their logic directly inside the controller.
     {
         return [
@@ -56,11 +49,6 @@ class SiteController extends Controller
         ];
     }
 
-    /**
-     * Displays homepage.
-     *
-     * @return string
-     */
     public function actionIndex()
     {
         return $this->render('index');
@@ -72,27 +60,20 @@ class SiteController extends Controller
         $redirectUri = Yii::$app->params['keycloak']['redirect_uri'];
 
         $token = Keycloak::auth()->getToken($code, $redirectUri);
-        $user = Keycloak::user()->getUserInfo($token['access_token']);
+        $userInfo = Keycloak::user()->getUserInfo($token['access_token']);
 
-        Yii::$app->session->set('user', $user);
+        $user = User::findByEmail($userInfo['email']);
+        
+        if (!$user) {
+            $user = User::createFromKeycloak($userInfo);
+        }
+
+        Yii::$app->user->login($user);
+
+        Yii::$app->session->set('id_token', $token['id_token']);
 
         return $this->redirect(['site/about-me']);
     }
-
-    public function actionSignup()
-    {
-        $model = new SignupForm();
-
-        if ($model->load(Yii::$app->request->post()) && $model->signup()) {
-            Yii::$app->session->setFlash('success', 'Registration successful! You can now log in.');
-            return $this->redirect(['site/login']);
-        }
-
-        return $this->render('signup', [
-            'model' => $model,
-        ]);
-    }
-
     
     public function actionLogin()
     {
@@ -110,26 +91,32 @@ class SiteController extends Controller
         return $this->redirect($authUrl . '?' . $query);
     }
 
-
     public function actionKcLogout()
     {
-        Yii::$app->session->remove('user');
+        $idToken = Yii::$app->session->get('id_token');
+        Yii::$app->session->removeAll(); // Clear all session data
+
         $logoutUrl = Yii::$app->params['keycloak']['logout_url'];
-        $redirect = 'http://localhost:8080';
+        $redirectUri = Yii::$app->params['keycloak']['redirect_uri_after_logout'] ?? 'http://localhost:8080';
 
         $url = $logoutUrl . '?' . http_build_query([
-            'post_logout_redirect_uri' => $redirect,
+            'post_logout_redirect_uri' => $redirectUri,
+            'id_token_hint' => $idToken,
         ]);
 
         return $this->redirect($url);
     }
 
+    public function actionUserList()
+    {
+        if (Yii::$app->user->isGuest) {
+            return $this->redirect(['site/login']); // or show 403
+        }
+        $users = Keycloak::admin()->getAllUsers();
 
-    /**
-     * Displays contact page.
-     *
-     * @return Response|string
-     */
+        return $this->render('user-list', ['users' => $users]);
+    }
+
     public function actionContact()
     {
         $model = new ContactForm();
@@ -143,13 +130,33 @@ class SiteController extends Controller
         ]);
     }
 
-    /**
-     * Displays about page.
-     *
-     * @return string
-     */
     public function actionAboutMe()
     {
         return $this->render('about');
     }
+
+    public function actionUserView($id)
+    {
+        if (Yii::$app->user->isGuest) {
+            return $this->redirect(['site/login']);
+        }
+        $admin = Keycloak::admin();
+        $user = Keycloak::admin()->getUserById($id);
+        $sessions = $admin->getUserSessions($id);
+        return $this->render('user-view', [
+            'user' => $user,
+            'sessions' => $sessions,
+        ]);
+    }
+    public function actionLogoutUserSession($sessionId)
+    {
+        if (Keycloak::admin()->deleteUserSession($sessionId)) {
+            Yii::$app->session->setFlash('success', 'Session forcibly logged out.');
+        } else {
+            Yii::$app->session->setFlash('error', 'Failed to logout session.');
+        }
+
+        return $this->goBack();
+    }
+
 }

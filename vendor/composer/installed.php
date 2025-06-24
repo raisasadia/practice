@@ -5,7 +5,7 @@
         'type' => 'project',
         'install_path' => __DIR__ . '/../../',
         'aliases' => array(),
-        'reference' => '51be32ae76ea73492b3caa50b63dbd557a6f3ab0',
+        'reference' => 'ebfb8464d01760a4c163230aa67b670bc1485462',
         'name' => 'yiisoft/yii2-app-basic',
         'dev' => true,
     ),
@@ -424,6 +424,15 @@
             'reference' => '85057ceedee50c49d4f6ecaff73ee96adb3b3625',
             'dev_requirement' => true,
         ),
+        'raisa/yii2-keycloak-auth' => array(
+            'pretty_version' => 'dev-main',
+            'version' => 'dev-main',
+            'type' => 'yii2-extension',
+            'install_path' => __DIR__ . '/../raisa/yii2-keycloak-auth',
+            'aliases' => array(),
+            'reference' => 'b8b8822ea3602d54826eb893074b3a8d2cbf1208',
+            'dev_requirement' => false,
+        ),
         'ralouphie/getallheaders' => array(
             'pretty_version' => '3.0.3',
             'version' => '3.0.3.0',
@@ -778,7 +787,7 @@
             'type' => 'project',
             'install_path' => __DIR__ . '/../../',
             'aliases' => array(),
-            'reference' => '51be32ae76ea73492b3caa50b63dbd557a6f3ab0',
+            'reference' => 'ebfb8464d01760a4c163230aa67b670bc1485462',
             'dev_requirement' => false,
         ),
         'yiisoft/yii2-bootstrap5' => array(

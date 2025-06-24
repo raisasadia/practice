@@ -709,7 +709,7 @@ return array(
     'PHPUnit\\Runner\\InvalidPhptFileException' => $vendorDir . '/phpunit/phpunit/src/Runner/Exception/InvalidPhptFileException.php',
     'PHPUnit\\Runner\\ParameterDoesNotExistException' => $vendorDir . '/phpunit/phpunit/src/Runner/Exception/ParameterDoesNotExistException.php',
     'PHPUnit\\Runner\\PhptExternalFileCannotBeLoadedException' => $vendorDir . '/phpunit/phpunit/src/Runner/Exception/PhptExternalFileCannotBeLoadedException.php',
-    'PHPUnit\\Runner\\PhptTestCase' => $vendorDir . '/phpunit/phpunit/src/Runner/PHPT/PhptTestCase.php',
+    'PHPUnit\\Runner\\PhptTestCase' => $vendorDir . '/phpunit/phpunit/src/Runner/Phpt/PhptTestCase.php',
     'PHPUnit\\Runner\\ResultCache\\DefaultResultCache' => $vendorDir . '/phpunit/phpunit/src/Runner/ResultCache/DefaultResultCache.php',
     'PHPUnit\\Runner\\ResultCache\\NullResultCache' => $vendorDir . '/phpunit/phpunit/src/Runner/ResultCache/NullResultCache.php',
     'PHPUnit\\Runner\\ResultCache\\ResultCache' => $vendorDir . '/phpunit/phpunit/src/Runner/ResultCache/ResultCache.php',
