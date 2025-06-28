@@ -156,7 +156,7 @@ class SiteController extends Controller
             Yii::$app->session->setFlash('error', 'Failed to logout session.');
         }
 
-        return $this->goBack();
+        return $this->redirect(['site/user-list']);
     }
 
 }
