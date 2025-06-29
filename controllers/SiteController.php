@@ -112,8 +112,13 @@ class SiteController extends Controller
         if (Yii::$app->user->isGuest) {
             return $this->redirect(['site/login']); // or show 403
         }
-        $users = Keycloak::admin()->getAllUsers();
+        $user = Yii::$app->user->identity;
 
+        if (!$user->getIsAdmin()) {
+            throw new \yii\web\ForbiddenHttpException('Access Denied. Only admins can access this page.');
+        }
+
+        $users = Keycloak::admin()->getAllUsers();
         return $this->render('user-list', ['users' => $users]);
     }
 
@@ -140,6 +145,11 @@ class SiteController extends Controller
         if (Yii::$app->user->isGuest) {
             return $this->redirect(['site/login']);
         }
+
+        if (!Yii::$app->user->identity->getIsAdmin()) {
+            throw new \yii\web\ForbiddenHttpException('Access Denied. Only admins can view users.');
+        }
+
         $admin = Keycloak::admin();
         $user = Keycloak::admin()->getUserById($id);
         $sessions = $admin->getUserSessions($id);
