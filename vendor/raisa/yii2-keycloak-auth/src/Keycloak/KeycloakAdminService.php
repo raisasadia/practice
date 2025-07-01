@@ -96,26 +96,25 @@ class KeycloakAdminService
         return json_decode($response->getBody(), true);
     }
 
-    public function deleteUserSession($sessionId)
+    public function logoutUserById($userId)
     {
         $params = \Yii::$app->params['keycloak'];
-        $client = new Client();
+        $client = new \GuzzleHttp\Client();
 
         $response = $client->post("{$params['base_url']}/realms/{$params['realm']}/protocol/openid-connect/token", [
             'form_params' => [
                 'grant_type' => 'client_credentials',
                 'client_id' => $params['admin_client_id'],
                 'client_secret' => $params['admin_client_secret'],
-            ],
+            ]
         ]);
 
         $data = json_decode($response->getBody(), true);
         $accessToken = $data['access_token'];
 
-        // Step 2: Call DELETE session API
-        $url = "{$params['base_url']}/admin/realms/{$params['realm']}/sessions/{$sessionId}";
+        $url = "{$params['base_url']}/admin/realms/{$params['realm']}/users/{$userId}/logout";
 
-        $response = $client->delete($url, [
+        $response = $client->post($url, [
             'headers' => [
                 'Authorization' => "Bearer {$accessToken}",
             ]
@@ -123,4 +122,5 @@ class KeycloakAdminService
 
         return $response->getStatusCode() === 204;
     }
+
 }

@@ -110,7 +110,7 @@ class SiteController extends Controller
     public function actionUserList()
     {
         if (Yii::$app->user->isGuest) {
-            return $this->redirect(['site/login']); // or show 403
+            return $this->redirect(['site/login']);
         }
         $user = Yii::$app->user->identity;
 
@@ -157,16 +157,6 @@ class SiteController extends Controller
             'user' => $user,
             'sessions' => $sessions,
         ]);
-    }
-    public function actionLogoutUserSession($sessionId)
-    {
-        if (Keycloak::admin()->deleteUserSession($sessionId)) {
-            Yii::$app->session->setFlash('success', 'Session forcibly logged out.');
-        } else {
-            Yii::$app->session->setFlash('error', 'Failed to logout session.');
-        }
-
-        return $this->redirect(['site/user-list']);
     }
 
 }

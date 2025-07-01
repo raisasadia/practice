@@ -31,11 +31,11 @@ use yii\helpers\Html;
                 <tr>
                     <td><?= htmlspecialchars($session['id']) ?></td>
                     <td><?= $session['ipAddress'] ?? '-' ?></td>
-                    <td><?= date('d/m/Y H:i:s', $session['start'] / 1000) ?></td>
-                    <td><?= date('d/m/Y H:i:s', $session['lastAccess'] / 1000) ?></td>
+                    <td><?= Yii::$app->formatter->asDatetime($session['start'] / 1000) ?></td>
+                    <td><?= Yii::$app->formatter->asDatetime($session['lastAccess'] / 1000) ?></td>
                     <td><?= implode(', ', $session['clients'] ?? []) ?></td>
                     <td>
-                        <?= Html::beginForm(['logout-user-session', 'sessionId' => $session['id']], 'post', ['style' => 'display:inline']) ?>
+                        <?= Html::beginForm(['site/force-logout-user', 'id' => $user['id']], 'post', ['style' => 'display:inline']) ?>
                             <?= Html::submitButton(
                                 'Force Logout',
                                 [

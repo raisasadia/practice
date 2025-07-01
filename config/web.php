@@ -13,6 +13,10 @@ $config = [
     ],
     'name' => 'Practice yii!',
     'components' => [
+        'formatter' => [
+            'defaultTimeZone' => 'Asia/Dhaka', // or your correct timezone
+            'timeZone' => 'Asia/Dhaka',
+        ],
         'request' => [
             // !!! insert a secret key in the following (if it is empty) - this is required by cookie validation
             'cookieValidationKey' => '1zdrerzIFRj6GQJKu9U3AQvTta2BWTAV',
@@ -54,6 +58,7 @@ $config = [
         ],
     ],
     'params' => $params,
+    'timeZone' => 'Asia/Dhaka',
 ];
 
 if (YII_ENV_DEV) {
