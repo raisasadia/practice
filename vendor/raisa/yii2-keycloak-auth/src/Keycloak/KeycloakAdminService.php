@@ -96,6 +96,23 @@ class KeycloakAdminService
         return json_decode($response->getBody(), true);
     }
 
+    public function deleteSession($sessionId)
+    {
+        $params = \Yii::$app->params['keycloak'];
+        $token = $this->getAdminToken();
+
+        $client = new \GuzzleHttp\Client();
+        $url = "{$params['base_url']}/admin/realms/{$params['realm']}/sessions/{$sessionId}";
+
+        $response = $client->delete($url, [
+            'headers' => [
+                'Authorization' => "Bearer {$token}"
+            ]
+        ]);
+
+        return $response->getStatusCode() === 204;
+    }
+    
     public function logoutUserById($userId)
     {
         $params = \Yii::$app->params['keycloak'];

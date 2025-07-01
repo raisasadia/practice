@@ -36,6 +36,17 @@ class SiteController extends Controller
         ];
     }
 
+    public $enableCsrfValidation = true;
+
+    public function beforeAction($action)
+    {
+        if ($action->id === 'backchannel-logout') {
+            $this->enableCsrfValidation = false;
+        }
+
+        return parent::beforeAction($action);
+    }
+    
     public function actions()   //declare external action classes without writing their logic directly inside the controller.
     {
         return [
@@ -61,11 +72,25 @@ class SiteController extends Controller
 
         $token = Keycloak::auth()->getToken($code, $redirectUri);
         $userInfo = Keycloak::user()->getUserInfo($token['access_token']);
+        $userId = $userInfo['sub'];
 
         $user = User::findByEmail($userInfo['email']);
-        
         if (!$user) {
             $user = User::createFromKeycloak($userInfo);
+        }
+
+        $admin = Keycloak::admin();
+        $sessions = $admin->getUserSessions($userId); // 'sub' is the Keycloak user ID
+
+        if (count($sessions) > 1) {
+            usort($sessions, fn($a, $b) => $b['start'] <=> $a['start']);
+
+            $latestSessionId = $sessions[0]['id'];
+            foreach ($sessions as $session) {
+                if ($session['id'] !== $latestSessionId) {
+                    $admin->deleteSession($session['id']);
+                }
+            }
         }
 
         Yii::$app->user->login($user);
@@ -157,6 +182,25 @@ class SiteController extends Controller
             'user' => $user,
             'sessions' => $sessions,
         ]);
+    }
+
+    public function actionBackchannelLogout()
+    {
+        Yii::$app->response->format = \yii\web\Response::FORMAT_JSON;
+
+        $rawInput = file_get_contents('php://input');
+        $data = json_decode($rawInput, true);
+
+        Yii::info('Backchannel logout received: ' . print_r($data, true), 'keycloak');
+
+        if (!isset($data['logout_token'])) {
+            return ['status' => 'error', 'message' => 'No logout_token received'];
+        }
+
+        Yii::$app->user->logout();
+        Yii::$app->session->destroy();
+
+        return ['status' => 'ok'];
     }
 
 }
