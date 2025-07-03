@@ -95,25 +95,61 @@ class KeycloakAdminService
 
         return json_decode($response->getBody(), true);
     }
-
-    public function deleteSession($sessionId)
+    
+    public function getUserIdFromSessionId($sessionId)
     {
         $params = \Yii::$app->params['keycloak'];
         $token = $this->getAdminToken();
 
         $client = new \GuzzleHttp\Client();
+        $url = "{$params['base_url']}/admin/realms/{$params['realm']}/users";
+
+        $response = $client->get("{$params['base_url']}/admin/realms/{$params['realm']}/users", [
+            'headers' => ['Authorization' => "Bearer {$token}"],
+        ]);
+
+        $users = json_decode($response->getBody(), true);
+
+        foreach ($users as $user) {
+            $sessions = $this->getUserSessions($user['id']);
+            foreach ($sessions as $session) {
+                if ($session['id'] === $sessionId) {
+                    return $user['id'];
+                }
+            }
+        }
+
+        return null;
+    }
+
+    public function deleteUserSession($sessionId)
+    {
+        $params = \Yii::$app->params['keycloak'];
+        $client = new Client();
+
+        $response = $client->post("{$params['base_url']}/realms/{$params['realm']}/protocol/openid-connect/token", [
+            'form_params' => [
+                'grant_type' => 'client_credentials',
+                'client_id' => $params['admin_client_id'],
+                'client_secret' => $params['admin_client_secret'],
+            ],
+        ]);
+
+        $data = json_decode($response->getBody(), true);
+        $accessToken = $data['access_token'];
+
         $url = "{$params['base_url']}/admin/realms/{$params['realm']}/sessions/{$sessionId}";
 
         $response = $client->delete($url, [
             'headers' => [
-                'Authorization' => "Bearer {$token}"
+                'Authorization' => "Bearer {$accessToken}",
             ]
         ]);
 
         return $response->getStatusCode() === 204;
     }
     
-    public function logoutUserById($userId)
+    public function forceLogoutUserById($userId)
     {
         $params = \Yii::$app->params['keycloak'];
         $client = new \GuzzleHttp\Client();

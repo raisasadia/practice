@@ -18,34 +18,23 @@ class SiteController extends Controller
         return [
             'access' => [   //Purpose: Restricts the logout action so only logged-in users can access it.
                 'class' => AccessControl::class,
-                'only' => ['logout'],
+                'only' => ['frontchannel-logout'],
                 'rules' => [
                     [
-                        'actions' => ['logout'],
                         'allow' => true,
-                        'roles' => ['@'],   // @ = logged-in users
+                        'roles' => ['@','?'],   // @ = logged-in users
                     ],
                 ],
             ],
             'verbs' => [    //Purpose: Prevents people from logging out via URL like GET /site/logout.
                 'class' => VerbFilter::class,
                 'actions' => [
-                    'logout' => ['post'],   // only allow POST requests
+                    'frontchannel-logout' => ['GET', 'POST'],   // only allow POST requests
                 ],
             ],
         ];
     }
 
-    public $enableCsrfValidation = true;
-
-    public function beforeAction($action)
-    {
-        if ($action->id === 'backchannel-logout') {
-            $this->enableCsrfValidation = false;
-        }
-
-        return parent::beforeAction($action);
-    }
     
     public function actions()   //declare external action classes without writing their logic directly inside the controller.
     {
@@ -184,23 +173,33 @@ class SiteController extends Controller
         ]);
     }
 
-    public function actionBackchannelLogout()
+    public function actionFrontchannelLogout()
     {
-        Yii::$app->response->format = \yii\web\Response::FORMAT_JSON;
+        Yii::info('Frontchannel logout triggered at ' . date('Y-m-d H:i:s'), 'keycloak');
 
-        $rawInput = file_get_contents('php://input');
-        $data = json_decode($rawInput, true);
-
-        Yii::info('Backchannel logout received: ' . print_r($data, true), 'keycloak');
-
-        if (!isset($data['logout_token'])) {
-            return ['status' => 'error', 'message' => 'No logout_token received'];
+        if (!Yii::$app->user->isGuest) {
+            Yii::info('User is logged in. Logging out.', 'keycloak');
+            Yii::$app->user->logout(false);
+        } else {
+            Yii::info('User is already guest.', 'keycloak');
         }
 
-        Yii::$app->user->logout();
         Yii::$app->session->destroy();
+        return $this->redirect(['site/index']);
+    }
 
-        return ['status' => 'ok'];
+    public function actionLogoutUserSession($sessionId)
+    {
+        $userId = Keycloak::admin()->getUserIdFromSessionId($sessionId); // you can create this method using user sessions API
+
+        if ($userId && Keycloak::admin()->forceLogoutUserById($userId)) {
+            Yii::$app->session->setFlash('success', 'User has been logged out and frontchannel logout triggered.');
+            
+        } else {
+            Yii::$app->session->setFlash('error', 'Failed to log out user.');
+        }
+
+        return $this->redirect(['site/frontchannel-logout']);
     }
 
 }

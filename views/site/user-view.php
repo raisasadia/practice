@@ -35,7 +35,7 @@ use yii\helpers\Html;
                     <td><?= Yii::$app->formatter->asDatetime($session['lastAccess'] / 1000) ?></td>
                     <td><?= implode(', ', $session['clients'] ?? []) ?></td>
                     <td>
-                        <?= Html::beginForm(['site/force-logout-user', 'id' => $user['id']], 'post', ['style' => 'display:inline']) ?>
+                        <?= Html::beginForm(['logout-user-session', 'sessionId' => $session['id']], 'post', ['style' => 'display:inline']) ?>
                             <?= Html::submitButton(
                                 'Force Logout',
                                 [
