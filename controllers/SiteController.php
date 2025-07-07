@@ -69,18 +69,18 @@ class SiteController extends Controller
         }
 
         $admin = Keycloak::admin();
-        $sessions = $admin->getUserSessions($userId); // 'sub' is the Keycloak user ID
+            $sessions = $admin->getUserSessions($userId);
 
-        if (count($sessions) > 1) {
-            usort($sessions, fn($a, $b) => $b['start'] <=> $a['start']);
+            if (count($sessions) > 1) {
+                usort($sessions, fn($a, $b) => $b['start'] <=> $a['start']);
 
-            $latestSessionId = $sessions[0]['id'];
-            foreach ($sessions as $session) {
-                if ($session['id'] !== $latestSessionId) {
-                    $admin->deleteSession($session['id']);
+                $latestSessionId = $sessions[0]['id'];
+                foreach ($sessions as $session) {
+                    if ($session['id'] !== $latestSessionId) {
+                        $admin->deleteSession($session['id']);
+                    }
                 }
             }
-        }
 
         Yii::$app->user->login($user);
 
