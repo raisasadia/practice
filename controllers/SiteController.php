@@ -18,24 +18,24 @@ class SiteController extends Controller
         return [
             'access' => [   //Purpose: Restricts the logout action so only logged-in users can access it.
                 'class' => AccessControl::class,
-                'only' => ['logout'],
+                'only' => ['frontchannel-logout'],
                 'rules' => [
                     [
-                        'actions' => ['logout'],
                         'allow' => true,
-                        'roles' => ['@'],   // @ = logged-in users
+                        'roles' => ['@','?'],   // @ = logged-in users
                     ],
                 ],
             ],
             'verbs' => [    //Purpose: Prevents people from logging out via URL like GET /site/logout.
                 'class' => VerbFilter::class,
                 'actions' => [
-                    'logout' => ['post'],   // only allow POST requests
+                    'frontchannel-logout' => ['GET', 'POST'],   // only allow POST requests
                 ],
             ],
         ];
     }
 
+    
     public function actions()   //declare external action classes without writing their logic directly inside the controller.
     {
         return [
@@ -61,12 +61,26 @@ class SiteController extends Controller
 
         $token = Keycloak::auth()->getToken($code, $redirectUri);
         $userInfo = Keycloak::user()->getUserInfo($token['access_token']);
+        $userId = $userInfo['sub'];
 
         $user = User::findByEmail($userInfo['email']);
-        
         if (!$user) {
             $user = User::createFromKeycloak($userInfo);
         }
+
+        $admin = Keycloak::admin();
+            $sessions = $admin->getUserSessions($userId);
+
+            if (count($sessions) > 1) {
+                usort($sessions, fn($a, $b) => $b['start'] <=> $a['start']);
+
+                $latestSessionId = $sessions[0]['id'];
+                foreach ($sessions as $session) {
+                    if ($session['id'] !== $latestSessionId) {
+                        $admin->deleteSession($session['id']);
+                    }
+                }
+            }
 
         Yii::$app->user->login($user);
 
@@ -110,10 +124,15 @@ class SiteController extends Controller
     public function actionUserList()
     {
         if (Yii::$app->user->isGuest) {
-            return $this->redirect(['site/login']); // or show 403
+            return $this->redirect(['site/login']);
         }
-        $users = Keycloak::admin()->getAllUsers();
+        $user = Yii::$app->user->identity;
 
+        if (!$user->getIsAdmin()) {
+            throw new \yii\web\ForbiddenHttpException('Access Denied. Only admins can access this page.');
+        }
+
+        $users = Keycloak::admin()->getAllUsers();
         return $this->render('user-list', ['users' => $users]);
     }
 
@@ -140,6 +159,11 @@ class SiteController extends Controller
         if (Yii::$app->user->isGuest) {
             return $this->redirect(['site/login']);
         }
+
+        if (!Yii::$app->user->identity->getIsAdmin()) {
+            throw new \yii\web\ForbiddenHttpException('Access Denied. Only admins can view users.');
+        }
+
         $admin = Keycloak::admin();
         $user = Keycloak::admin()->getUserById($id);
         $sessions = $admin->getUserSessions($id);
@@ -148,15 +172,34 @@ class SiteController extends Controller
             'sessions' => $sessions,
         ]);
     }
-    public function actionLogoutUserSession($sessionId)
+
+    public function actionFrontchannelLogout()
     {
-        if (Keycloak::admin()->deleteUserSession($sessionId)) {
-            Yii::$app->session->setFlash('success', 'Session forcibly logged out.');
+        Yii::info('Frontchannel logout triggered at ' . date('Y-m-d H:i:s'), 'keycloak');
+
+        if (!Yii::$app->user->isGuest) {
+            Yii::info('User is logged in. Logging out.', 'keycloak');
+            Yii::$app->user->logout(false);
         } else {
-            Yii::$app->session->setFlash('error', 'Failed to logout session.');
+            Yii::info('User is already guest.', 'keycloak');
         }
 
-        return $this->redirect(['site/user-list']);
+        Yii::$app->session->destroy();
+        return $this->redirect(['site/index']);
+    }
+
+    public function actionLogoutUserSession($sessionId)
+    {
+        $userId = Keycloak::admin()->getUserIdFromSessionId($sessionId); // you can create this method using user sessions API
+
+        if ($userId && Keycloak::admin()->forceLogoutUserById($userId)) {
+            Yii::$app->session->setFlash('success', 'User has been logged out and frontchannel logout triggered.');
+            
+        } else {
+            Yii::$app->session->setFlash('error', 'Failed to log out user.');
+        }
+
+        return $this->redirect(['site/frontchannel-logout']);
     }
 
 }

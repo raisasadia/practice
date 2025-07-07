@@ -33,8 +33,6 @@ class User extends ActiveRecord implements IdentityInterface
         ];
     }
 
-    // IdentityInterface methods below
-
     public static function findIdentity($id)
     {
         return static::findOne($id);
@@ -42,7 +40,7 @@ class User extends ActiveRecord implements IdentityInterface
 
     public static function findIdentityByAccessToken($token, $type = null)
     {
-        return null; // Implement if needed
+        return null;
     }
 
     public function getId()
@@ -52,12 +50,12 @@ class User extends ActiveRecord implements IdentityInterface
 
     public function getAuthKey()
     {
-        return null; // Implement if needed
+        return null;
     }
 
     public function validateAuthKey($authKey)
     {
-        return false; // Implement if needed
+        return false;
     }
     public function getUsername()
     {
@@ -79,4 +77,10 @@ class User extends ActiveRecord implements IdentityInterface
         $user->save(false);
         return $user;
     }
+
+        public function getIsAdmin()
+    {
+        return $this->user_role === 'admin';
+    }
+
 }
